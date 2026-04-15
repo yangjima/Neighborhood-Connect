@@ -1,0 +1,38 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/neighborhood?useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# 微信支付配置
+wechat:
+  mchid: ${WECHAT_MCHID:1234567890}
+  appid: ${WECHAT_APPID:wx1234567890abcdef}
+  apiKey: ${WECHAT_API_KEY:your_api_key}
+  certPath: ${WECHAT_CERT_PATH:}
+
+# 支付宝配置
+alipay:
+  appId: ${ALIPAY_APP_ID:2021000000000000}
+  privateKey: ${ALIPAY_PRIVATE_KEY:}
+  alipayPublicKey: ${ALIPAY_PUBLIC_KEY:}
+  gateway: https://openapi.alipay.com/gateway.do
+  sandbox: true
+
+# 支付回调地址
+payment:
+  callback-url: http://localhost:8082

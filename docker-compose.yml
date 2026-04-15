@@ -1,0 +1,224 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: neighborhood-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: neighborhood
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # MongoDB数据库
+  mongodb:
+    image: mongo:6.0
+    container_name: neighborhood-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # Redis缓存
+  redis:
+    image: redis:7.0-alpine
+    container_name: neighborhood-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # Elasticsearch搜索引擎
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: neighborhood-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # MinIO对象存储
+  minio:
+    image: minio/minio:latest
+    container_name: neighborhood-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # Nginx网关
+  nginx:
+    image: nginx:alpine
+    container_name: neighborhood-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - rental-service
+      - trade-service
+      - user-service
+      - ai-service
+      - upload-service
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # 用户服务 (Java)
+  user-service:
+    build:
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    container_name: neighborhood-user-service
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/neighborhood?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # 租房服务 (Python)
+  rental-service:
+    build:
+      context: ./backend/rental-service
+      dockerfile: Dockerfile
+    container_name: neighborhood-rental-service
+    ports:
+      - "8001:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - DATABASE_NAME=neighborhood
+      - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - mongodb
+      - redis
+      - elasticsearch
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # 交易服务 (Python)
+  trade-service:
+    build:
+      context: ./backend/trade-service
+      dockerfile: Dockerfile
+    container_name: neighborhood-trade-service
+    ports:
+      - "8002:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - DATABASE_NAME=neighborhood
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # AI服务 (Python)
+  ai-service:
+    build:
+      context: ./backend/ai-service
+      dockerfile: Dockerfile
+    container_name: neighborhood-ai-service
+    ports:
+      - "8003:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - redis
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # 上传服务 (Python)
+  upload-service:
+    build:
+      context: ./backend/upload-service
+      dockerfile: Dockerfile
+    container_name: neighborhood-upload-service
+    ports:
+      - "8004:8000"
+    volumes:
+      - upload_data:/app/uploads
+    networks:
+      - neighborhood-network
+    restart: always
+
+  # 支付服务 (Java)
+  payment-service:
+    build:
+      context: ./backend/payment-service
+      dockerfile: Dockerfile
+    container_name: neighborhood-payment-service
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/neighborhood?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - neighborhood-network
+    restart: always
+
+volumes:
+  mysql_data:
+  mongodb_data:
+  es_data:
+  redis_data:
+  minio_data:
+  upload_data:
+
+networks:
+  neighborhood-network:
+    driver: bridge
