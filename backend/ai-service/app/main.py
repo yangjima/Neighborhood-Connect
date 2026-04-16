@@ -8,7 +8,11 @@ from langchain.prompts import ChatPromptTemplate
 import os
 import uvicorn
 
-app = FastAPI(title="AI Service", version="1.0.0")
+from app.models.schemas import SmartSearchRequest, SmartSearchResponse
+from app.models.state import ConversationState
+from app.workflow import create_workflow
+
+app = FastAPI(title="AI Service", version="2.0.0")
 
 # CORS配置
 app.add_middleware(
@@ -126,9 +130,48 @@ workflow.add_edge("generate", END)
 
 graph = workflow.compile()
 
+# Create workflow once at startup
+workflow = None
+
+@app.on_event("startup")
+async def startup_event():
+    global workflow
+    workflow = create_workflow()
+
 @app.get("/")
 def read_root():
-    return {"service": "AI Service", "status": "running", "model": "LangGraph"}
+    return {"service": "AI Service", "status": "running", "version": "2.0.0"}
+
+@app.post("/api/ai/smart-search", response_model=SmartSearchResponse)
+async def smart_search(request: SmartSearchRequest):
+    """
+    AI-powered smart search endpoint.
+
+    Accepts natural language queries and returns structured results.
+    """
+    try:
+        # Initialize state
+        initial_state: ConversationState = {
+            "user_query": request.query,
+            "context": request.context,
+            "intent": "",
+            "intent_confidence": 0.0,
+            "extracted_params": {},
+            "optimized_query": {},
+            "retrieved_data": [],
+            "formatted_response": {},
+            "error": None,
+            "metadata": {}
+        }
+
+        # Run workflow
+        result = await workflow.ainvoke(initial_state)
+
+        # Return formatted response
+        return result["formatted_response"]
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
 @app.post("/api/ai/generate-description")
 async def generate_description(request: GenerateDescriptionRequest):
