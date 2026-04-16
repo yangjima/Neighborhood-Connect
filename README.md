@@ -14,74 +14,65 @@
 - **Axios** - HTTP客户端
 
 ### 后端
-- **用户服务**: Java Spring Boot 3.2 + Spring Security + JWT
-- **租房服务**: Python FastAPI + MongoDB
-- **交易服务**: Python FastAPI + MongoDB
-- **AI服务**: Python FastAPI + LangGraph
-- **支付服务**: Java Spring Boot
-- **上传服务**: Python FastAPI
+- **用户服务**: Java Spring Boot 3.2 + Spring Security + JWT (8081)
+- **租房服务**: Python FastAPI + MongoDB (8001)
+- **交易服务**: Python FastAPI + MongoDB (8002)
+- **AI服务**: Python FastAPI + LangGraph + OpenAI (8003)
+- **支付服务**: Java Spring Boot + MySQL (8082)
+- **上传服务**: Python FastAPI (8004)
 
 ### 数据存储
 - **MySQL 8.0** - 主数据库（用户、订单）
 - **MongoDB 6.0** - 文档存储（房源、商品详情）
 - **Redis 7.0** - 缓存、会话
-- **Elasticsearch 8.x** - 搜索引擎
+- **Elasticsearch 8.x** - 搜索引擎（规划中）
 
 ### 基础设施
 - **Docker** + Docker Compose
 - **Nginx** - API网关、反向代理
 
+---
+
 ## 功能模块
 
-### 已完成 ✅
+### ✅ 已完成
 
-| 模块 | 描述 | 状态 |
+| 模块 | 描述 | 备注 |
 |------|------|------|
-| 用户认证 | 登录、注册、JWT认证 | ✅ |
-| 租房信息 | 发布、浏览、搜索、收藏、预约看房（内存存储） | ✅ |
-| 二手交易 | 发布、浏览、搜索、下单、订单管理（内存存储） | ✅ |
-| 用户中心 | 个人资料、我的发布、我的订单 | ✅ |
-| AI服务 | 内容生成、内容审核、智能推荐（基础版） | ✅ |
-| 支付服务 | 微信/支付宝支付集成 | ✅ |
-| 图片上传 | 单图/多图上传、删除 | ✅ |
+| 用户认证 | 登录、注册（短信验证码）、JWT认证、用户资料管理 | Redis存储短信验证码；Spring Security + JWT |
+| 租房浏览 | 列表浏览、分页、条件筛选（类型/价格/位置）、详情页、发布页 | 后端 list 端点已连接 MongoDB |
+| 租房收藏 | 房源收藏、收藏列表 | 内存存储（in-memory） |
+| 预约看房 | 预约表单、预约管理 | 内存存储（in-memory） |
+| 二手交易 | 列表浏览、分页、分类筛选、条件搜索、商品详情、发布商品、订单管理 | list 端点连接 MongoDB；其余端点内存存储 |
+| AI服务架构 | 5-Agent LangGraph 工作流、Prometheus 监控、结构化日志 | 包含 intent_classifier、parameter_extractor、query_optimizer、data_retrieval、response_formatter |
+| AI端点 | `/smart-search`、`/generate-description`、`/moderate`、`/recommend` | smart-search 使用 LangGraph；其余为模板/规则实现 |
+| 前端智能搜索组件 | SmartSearchBar.vue 组件（自然语言查询界面） | 组件已实现，**尚未集成到 RentalList 页面** |
+| 图片上传 | 单图/多图上传（最多9张）、图片删除、文件验证（5MB） | aiofiles 异步文件操作 |
+| 用户界面 | 所有页面组件（Login、Profile、MyItems、MyOrders、Rental/Trade List/Detail/Publish） | 完整的前端路由和页面结构 |
 
-### 进行中 🚧
+### 🚧 进行中 / 部分实现
 
-| 模块 | 描述 | 状态 |
-|------|------|------|
-| MongoDB集成 | 租房和交易服务迁移到MongoDB | 🚧 |
-| AI智能搜索 | 多Agent架构 + LangGraph编排 | 🚧 |
-| 前端智能搜索框 | 自然语言查询界面 | 🚧 |
-| 监控系统 | Prometheus + 结构化日志 | 🚧 |
+| 模块 | 描述 | 待完成 |
+|------|------|--------|
+| MongoDB 存储迁移 | 租房/交易服务的部分端点（publish/detail/search/favorites/appointments/order）仍使用内存存储 | 将所有端点迁移到 MongoDB |
+| Redis 缓存 | AI service 的 `cache.py` 已实现，但各 Agent 中尚未全部集成使用 | 在 `data_retrieval.py` 等 Agent 中启用 Redis 缓存 |
+| SmartSearchBar 集成 | SmartSearchBar.vue 组件已存在，但 RentalList.vue 仍使用传统 el-input + el-select 搜索 | 将 SmartSearchBar 组件接入 RentalList 和 TradeList |
+| Home.vue 数据 | 首页使用硬编码模拟数据 | 改为从 rental/trade API 获取最新数据 |
+| Elasticsearch 集成 | 文档规划了 ES 用于全文搜索，但尚未集成 | 接入 Elasticsearch 实现高性能搜索 |
+| 支付集成 | 支付服务已创建支付记录，但微信/支付宝 SDK 未实际接入 | 集成微信支付 V3 API 和支付宝支付接口 |
+| 结构化日志 | AI service 根模块配置了 structlog，但各 Agent 节点尚未统一使用 | 在所有 Agent 中统一使用 `get_logger()` |
+| 分布式追踪 | 文档规划了 OpenTelemetry + Jaeger，但尚未实现 | 添加 OpenTelemetry instrumentation |
 
-### 支付集成说明
+### ❌ 未开始
 
-支付服务已集成微信支付和支付宝：
+| 模块 | 描述 |
+|------|------|
+| 家政服务 | 前端路由占位 `/service`，无后端实现 |
+| 兼职招聘 | 前端路由占位 `/job`，无后端实现 |
+| 消息通知 | 站内消息、订单状态通知等（SMS/邮件/推送） |
+| 用户行为追踪 | AI 推荐系统所需的用户历史行为数据收集 |
 
-**配置步骤：**
-
-1. 微信支付：
-   - 申请微信支付商户号
-   - 配置API密钥和证书
-   - 设置支付回调地址
-
-2. 支付宝：
-   - 申请支付宝开放平台应用
-   - 配置应用私钥和支付宝公钥
-   - 设置回调地址
-
-3. 环境变量配置：
-```bash
-# 微信支付
-WECHAT_MCHID=你的商户号
-WECHAT_APPID=你的AppID
-WECHAT_API_KEY=你的API密钥
-
-# 支付宝
-ALIPAY_APP_ID=你的应用ID
-ALIPAY_PRIVATE_KEY=你的应用私钥
-ALIPAY_PUBLIC_KEY=支付宝公钥
-```
+---
 
 ## 项目结构
 
@@ -94,65 +85,71 @@ neighborhood-connect/
 │   │   │   ├── rental.js         # 租房接口
 │   │   │   ├── trade.js          # 交易接口
 │   │   │   ├── payment.js        # 支付接口
-│   │   │   └── upload.js         # 上传接口
+│   │   │   ├── upload.js         # 上传接口
+│   │   │   └── ai.js            # AI接口
 │   │   ├── components/            # 通用组件
-│   │   │   └── Layout.vue        # 全局布局
+│   │   │   ├── Layout.vue        # 全局布局
+│   │   │   └── SmartSearchBar.vue # AI智能搜索组件
 │   │   ├── router/               # 路由配置
 │   │   ├── store/                # Pinia 状态
 │   │   ├── utils/                # 工具函数
 │   │   │   └── request.js        # Axios 封装
 │   │   └── views/                # 页面组件
-│   │       ├── Home.vue          # 首页
+│   │       ├── Home.vue          # 首页（模拟数据，待接入API）
 │   │       ├── rental/           # 租房模块
-│   │       │   ├── RentalList.vue
-│   │       │   ├── RentalDetail.vue
-│   │       │   └── RentalPublish.vue
 │   │       ├── trade/            # 交易模块
-│   │       │   ├── TradeList.vue
-│   │       │   ├── TradeDetail.vue
-│   │       │   └── TradePublish.vue
 │   │       └── user/             # 用户模块
-│   │           ├── Login.vue
-│   │           ├── Profile.vue
-│   │           ├── MyItems.vue
-│   │           └── MyOrders.vue
 │   └── package.json
 │
 ├── backend/
 │   ├── user-service/              # Java 用户服务 (8081)
 │   │   └── src/main/java/com/neighborhood/user/
-│   │       ├── controller/        # REST 控制器
-│   │       ├── dto/              # 数据传输对象
-│   │       ├── entity/            # JPA 实体
-│   │       ├── repository/        # 数据访问层
-│   │       ├── security/         # JWT 安全
-│   │       └── service/          # 业务逻辑
+│   │       ├── controller/AuthController.java
+│   │       ├── dto/              # LoginRequest, RegisterRequest, AuthResponse
+│   │       ├── entity/User.java
+│   │       ├── repository/UserRepository.java
+│   │       ├── security/JwtTokenProvider.java
+│   │       ├── service/UserService.java
+│   │       └── config/           # SecurityConfig, CorsConfig
 │   │
 │   ├── rental-service/            # Python 租房服务 (8001)
 │   │   └── app/
 │   │       ├── main.py           # FastAPI 应用
 │   │       ├── database.py       # MongoDB 连接
-│   │       └── models/           # 数据模型
+│   │       └── routers/          # API 路由
 │   │
 │   ├── trade-service/             # Python 交易服务 (8002)
 │   │   └── app/
-│   │       ├── main.py
-│   │       ├── database.py
-│   │       └── models/
+│   │       ├── main.py           # FastAPI 应用
+│   │       ├── database.py       # MongoDB 连接
+│   │       └── routers/          # API 路由
 │   │
 │   ├── ai-service/                # Python AI 服务 (8003)
 │   │   └── app/
-│   │       └── main.py          # LangGraph 工作流
+│   │       ├── main.py           # FastAPI 应用 + Prometheus /metrics
+│   │       ├── workflow.py       # LangGraph StateGraph（6节点）
+│   │       ├── database.py        # MongoDB 连接
+│   │       ├── cache.py          # Redis 缓存
+│   │       ├── metrics.py        # Prometheus 指标定义
+│   │       ├── agents/           # 5个Agent实现
+│   │       │   ├── intent_classifier.py
+│   │       │   ├── parameter_extractor.py
+│   │       │   ├── query_optimizer.py
+│   │       │   ├── data_retrieval.py
+│   │       │   └── response_formatter.py
+│   │       ├── models/           # Pydantic schemas 和 state
+│   │       └── utils/            # logger.py (structlog)
 │   │
 │   ├── payment-service/           # Java 支付服务 (8082)
 │   │   └── src/main/java/com/neighborhood/payment/
-│   │       ├── controller/        # REST 控制器
-│   │       ├── dto/              # 支付DTO
-│   │       ├── entity/           # 支付记录
-│   │       └── service/          # 微信/支付宝
+│   │       ├── controller/PaymentController.java
+│   │       ├── dto/             # CreatePaymentRequest, PaymentResponse
+│   │       ├── entity/Payment.java
+│   │       ├── repository/PaymentRepository.java
+│   │       └── service/PaymentService.java
 │   │
 │   └── upload-service/            # Python 上传服务 (8004)
-│       └── main.py               # 图片上传处理
+│       └── main.py               # 单图/多图上传、删除、验证
 │
 ├── nginx/                         # Nginx 配置
 ├── docker-compose.yml             # Docker Compose
@@ -168,6 +165,7 @@ neighborhood-connect/
 | 租房服务 | 8001 | http://localhost:8001/docs |
 | 交易服务 | 8002 | http://localhost:8002/docs |
 | AI服务 | 8003 | http://localhost:8003/docs |
+| AI监控 | 8003 | http://localhost:8003/metrics (Prometheus) |
 | 支付服务 | 8082 | http://localhost:8082/swagger-ui.html |
 | 上传服务 | 8004 | http://localhost:8004/docs |
 
@@ -178,6 +176,9 @@ neighborhood-connect/
 - Node.js 18+
 - Python 3.10+
 - Java 17+
+- MySQL 8.0
+- MongoDB 6.0
+- Redis 7.0
 - Docker & Docker Compose (可选)
 
 ### 1. 克隆项目
@@ -210,8 +211,6 @@ mysql -h localhost -u root -p < init.sql
 **用户服务（Java）：**
 ```bash
 cd backend/user-service
-./mvnw spring-boot:run
-# 或使用 Maven
 mvn spring-boot:run
 ```
 
@@ -263,23 +262,23 @@ npm run dev
 
 | 页面 | 路径 | 说明 |
 |------|------|------|
-| 首页 | `/` | Banner、快捷入口、最新房源/商品 |
-| 租房列表 | `/rental` | 搜索、筛选、分页 |
-| 房源详情 | `/rental/:id` | 图片轮播、基本信息、预约看房 |
+| 首页 | `/` | Banner、快捷入口、最新房源/商品（**当前为模拟数据**） |
+| 租房列表 | `/rental` | 传统搜索+筛选，**待接入 SmartSearchBar** |
+| 房源详情 | `/rental/:id` | 图片、基本信息、预约看房 |
 | 发布房源 | `/rental/publish` | 完整表单、图片上传 |
 | 交易列表 | `/trade` | 分类筛选、条件搜索 |
 | 商品详情 | `/trade/:id` | 购买下单、联系卖家 |
 | 发布商品 | `/trade/publish` | 完整表单、图片上传 |
-| 登录 | `/user/login` | 登录/注册、验证码 |
+| 登录 | `/user/login` | 登录/注册、短信验证码 |
 | 个人中心 | `/user/profile` | 个人信息管理 |
 | 我的发布 | `/user/my-items` | 管理已发布商品 |
 | 我的订单 | `/user/orders` | 订单列表、状态管理 |
 
 ## AI 功能（LangGraph + 多Agent架构）
 
-### 智能搜索（核心功能）
+### 智能搜索
 
-用户通过自然语言查询，AI自动识别意图并提取参数：
+用户通过自然语言查询，AI 自动识别意图并提取参数：
 
 ```bash
 curl -X POST http://localhost:8003/api/ai/smart-search \
@@ -306,64 +305,55 @@ curl -X POST http://localhost:8003/api/ai/smart-search \
 }
 ```
 
-### 多Agent架构设计
+### 多Agent架构
 
-系统由5个专门的Agent组成：
-
-1. **IntentClassifierAgent** - 识别用户查询属于租房还是交易
-2. **ParameterExtractorAgent** - 从自然语言中提取结构化参数
-3. **QueryOptimizerAgent** - 优化查询条件，处理同义词和模糊匹配
-4. **DataRetrievalAgent** - 调用租房/交易服务API获取数据
-5. **ResponseFormatterAgent** - 将结果格式化为前端需要的JSON
-
-工作流程：
 ```
 用户输入 → IntentClassifier → ParameterExtractor → QueryOptimizer → DataRetrieval → ResponseFormatter → 返回前端
+                      ↓
+              confidence < 0.7?
+                      ↓
+              HandleLowConfidence
 ```
 
-### 技术亮点
+- **IntentClassifierAgent** - 识别租房/交易意图 + 置信度
+- **ParameterExtractorAgent** - 从自然语言提取结构化参数（OpenAI Function Calling）
+- **QueryOptimizerAgent** - 查询条件优化（地名同义词、类别扩展、价格区间修正）
+- **DataRetrievalAgent** - 调用 rental/trade service API，Redis 缓存
+- **ResponseFormatterAgent** - 格式化查询理解和返回数据
 
-- **LangGraph状态机编排** - 使用条件边实现动态路由
-- **OpenAI Function Calling** - 结构化参数提取
-- **MongoDB地理位置查询** - 2dsphere索引支持位置搜索
-- **Redis缓存** - 相同查询5分钟内直接返回缓存
-- **Prometheus监控** - 完整的可观测性指标
-- **降级策略** - LLM失败时回退到关键词匹配
-- **分布式追踪** - OpenTelemetry + Jaeger
+### Prometheus 监控
 
-### 内容生成
+AI 服务暴露 Prometheus 指标：`GET http://localhost:8003/metrics`
+
+关键指标：
+- `ai_requests_total` - 请求总数（按 intent 和 status 标签）
+- `ai_request_duration_seconds` - 请求延迟分布
+- `ai_active_requests` - 当前活跃请求数
+- `ai_cache_hits_total` / `ai_cache_misses_total` - 缓存命中率
+- `ai_agent_success_total` / `ai_agent_failure_total` - Agent 执行结果
+
+### 内容生成、内容审核、智能推荐
 
 ```bash
+# 内容生成
 curl -X POST http://localhost:8003/api/ai/generate-description \
   -H "Content-Type: application/json" \
-  -d '{
-    "rental": {
-      "title": "精装两室一厅",
-      "type": "整租",
-      "area": 80,
-      "location": "朝阳区",
-      "facilities": ["空调", "冰箱", "洗衣机"]
-    }
-  }'
-```
+  -d '{"rental": {"title": "精装两室一厅", "type": "整租", "area": 80, "location": "朝阳区", "facilities": ["空调"]}}'
 
-### 内容审核
-
-```bash
+# 内容审核
 curl -X POST http://localhost:8003/api/ai/moderate \
   -H "Content-Type: application/json" \
   -d '{"content": "这是一条正常的房源描述"}'
-```
 
-### 智能推荐
-
-```bash
+# 智能推荐
 curl -X POST http://localhost:8003/api/ai/recommend \
   -H "Content-Type: application/json" \
   -d '{"user_id": "123", "category": "rental", "limit": 5}'
 ```
 
 ## 支付流程
+
+> ⚠️ 当前为沙箱/模拟模式，微信/支付宝 SDK 尚未实际接入
 
 ### 1. 创建支付订单
 
@@ -379,20 +369,20 @@ curl -X POST http://localhost:8082/api/payment/create \
   }'
 ```
 
-### 2. 微信支付
+### 2. 接入真实支付
 
-获取支付参数后，调起微信支付：
-```javascript
-WeChatJSBridge.invoke('getBrandWCPayRequest', params)
-```
+支付服务结构已完整，需配置以下环境变量后替换沙箱模式：
 
-### 3. 支付宝支付
+```bash
+# 微信支付
+WECHAT_MCHID=商户号
+WECHAT_APPID=AppID
+WECHAT_API_KEY=API密钥
 
-使用返回的表单数据调起支付：
-```javascript
-const form = response.paymentData.formData
-document.querySelector('#pay-form').innerHTML = form
-document.querySelector('#pay-form').submit()
+# 支付宝
+ALIPAY_APP_ID=应用ID
+ALIPAY_PRIVATE_KEY=应用私钥
+ALIPAY_PUBLIC_KEY=支付宝公钥
 ```
 
 ## 部署
