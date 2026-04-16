@@ -15,6 +15,9 @@ def test_settings_loads_from_env(monkeypatch):
     assert settings.OPENAI_MODEL == "gpt-4-turbo"  # default
     assert settings.OPENAI_TEMPERATURE == 0.0  # default
 
-def test_settings_validates_required_fields():
+def test_settings_validates_required_fields(monkeypatch, tmp_path):
+    # Clear the required field and change to a temp directory without .env
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.chdir(tmp_path)
     with pytest.raises(ValidationError):
         Settings()
