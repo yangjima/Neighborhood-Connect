@@ -18,6 +18,11 @@ from app.metrics import (
     ai_request_duration,
     ai_active_requests
 )
+from app.utils.logger import setup_logging, get_logger
+
+# Setup logging at module level
+setup_logging()
+logger = get_logger(__name__)
 
 app = FastAPI(title="AI Service", version="2.0.0")
 
@@ -148,6 +153,11 @@ workflow = None
 async def startup_event():
     global workflow
     workflow = create_workflow()
+    logger.info("ai_service_started", version="2.0.0")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("ai_service_shutdown")
 
 @app.get("/")
 def read_root():
@@ -160,6 +170,9 @@ async def smart_search(request: SmartSearchRequest):
 
     Accepts natural language queries and returns structured results.
     """
+    ai_active_requests.inc()
+    start_time = time.time()
+
     try:
         # Initialize state
         initial_state: ConversationState = {
@@ -178,11 +191,20 @@ async def smart_search(request: SmartSearchRequest):
         # Run workflow
         result = await workflow.ainvoke(initial_state)
 
+        # Record success metrics
+        intent = result.get("intent", "unknown")
+        ai_requests_total.labels(intent=intent, status="success").inc()
+
         # Return formatted response
         return result["formatted_response"]
 
     except Exception as e:
+        ai_requests_total.labels(intent="unknown", status="error").inc()
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+    finally:
+        duration = time.time() - start_time
+        ai_request_duration.labels(agent="workflow").observe(duration)
+        ai_active_requests.dec()
 
 @app.post("/api/ai/generate-description")
 async def generate_description(request: GenerateDescriptionRequest):
