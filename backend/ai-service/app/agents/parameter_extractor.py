@@ -5,6 +5,7 @@ from app.models.state import ConversationState
 from app.models.schemas import RentalParams, TradeParams
 from app.config import settings
 import json
+import re
 
 llm = ChatOpenAI(
     model=settings.OPENAI_MODEL,
@@ -43,6 +44,95 @@ trade_schema = {
         }
     }
 }
+
+LOCATION_KEYWORDS = ["望京", "朝阳", "海淀", "东城", "西城", "丰台", "石景山", "通州", "昌平", "大兴", "顺义", "房山", "门头沟", "怀柔", "平谷", "密云", "延庆", "中关村", "国贸", "西单", "王府井"]
+FURNITURE_KEYWORDS = ["沙发", "床", "桌子", "椅子", "柜子", "书架", "茶几", "衣柜", "餐桌"]
+APPLIANCE_KEYWORDS = ["冰箱", "空调", "洗衣机", "电视", "微波炉", "热水器", "油烟机", "燃气灶"]
+ELECTRONICS_KEYWORDS = ["电脑", "手机", "平板", "相机", "音响", "耳机"]
+CONDITION_KEYWORDS = {"九成新": "like_new", "全新": "like_new", "八成新": "good", "七成新": "good", "六成新": "acceptable", "五成新": "acceptable"}
+
+
+def _extract_rental_params_fallback(query: str) -> dict:
+    """Keyword-based rental parameter extraction as fallback"""
+    params = {}
+
+    # Location
+    for loc in LOCATION_KEYWORDS:
+        if loc in query:
+            params["location"] = loc
+            break
+
+    # Price patterns
+    price_match = re.search(r"(\d+)\s*左右", query)
+    if price_match:
+        price = float(price_match.group(1))
+        params["min_price"] = price * 0.9
+        params["max_price"] = price * 1.1
+    else:
+        price_range_match = re.search(r"(\d+)\s*[-到~]\s*(\d+)", query)
+        if price_range_match:
+            params["min_price"] = float(price_range_match.group(1))
+            params["max_price"] = float(price_range_match.group(2))
+        else:
+            price_only_match = re.search(r"(\d{3,5})\s*元", query)
+            if price_only_match:
+                price = float(price_only_match.group(1))
+                params["min_price"] = price * 0.9
+                params["max_price"] = price * 1.1
+
+    # Rental type
+    if "整租" in query or "两室" in query or "三室" in query:
+        params["type"] = "whole"
+
+    return params
+
+
+def _extract_trade_params_fallback(query: str) -> dict:
+    """Keyword-based trade parameter extraction as fallback"""
+    params = {}
+
+    # Location
+    for loc in LOCATION_KEYWORDS:
+        if loc in query:
+            params["location"] = loc
+            break
+
+    # Category
+    for item in FURNITURE_KEYWORDS:
+        if item in query:
+            params["category"] = "furniture"
+            break
+    if "category" not in params:
+        for item in APPLIANCE_KEYWORDS:
+            if item in query:
+                params["category"] = "appliance"
+                break
+    if "category" not in params:
+        for item in ELECTRONICS_KEYWORDS:
+            if item in query:
+                params["category"] = "electronics"
+                break
+
+    # Price patterns
+    price_range_match = re.search(r"(\d{3,5})\s*[-到~]\s*(\d{3,5})", query)
+    if price_range_match:
+        params["min_price"] = float(price_range_match.group(1))
+        params["max_price"] = float(price_range_match.group(2))
+    else:
+        price_match = re.search(r"(\d+)\s*元左右?", query)
+        if price_match:
+            price = float(price_match.group(1))
+            params["min_price"] = price * 0.9
+            params["max_price"] = price * 1.1
+
+    # Condition
+    for keyword, cond in CONDITION_KEYWORDS.items():
+        if keyword in query:
+            params["condition"] = cond
+            break
+
+    return params
+
 
 async def parameter_extractor_agent(state: ConversationState) -> ConversationState:
     """Extract structured parameters from natural language query"""
@@ -96,8 +186,11 @@ async def parameter_extractor_agent(state: ConversationState) -> ConversationSta
 
         state["extracted_params"] = params
 
-    except Exception as e:
-        state["error"] = f"Parameter extraction failed: {str(e)}"
-        state["extracted_params"] = {}
+    except Exception:
+        # Fallback to keyword-based extraction
+        if intent == "rental":
+            state["extracted_params"] = _extract_rental_params_fallback(state["user_query"])
+        else:
+            state["extracted_params"] = _extract_trade_params_fallback(state["user_query"])
 
     return state

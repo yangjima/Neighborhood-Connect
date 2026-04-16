@@ -13,6 +13,8 @@ RENTAL_KEYWORDS = {
     "房源",
     "看房",
     "公寓",
+    "室",
+    "厅",
 }
 
 TRADE_KEYWORDS = {

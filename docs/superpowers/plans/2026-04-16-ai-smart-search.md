@@ -1,6 +1,6 @@
 # AI智能搜索系统 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a multi-agent AI search system that understands natural language queries, extracts parameters, and returns structured results for rental and trade services.
 
@@ -59,7 +59,7 @@
 - Modify: `backend/ai-service/requirements.txt`
 - Create: `backend/ai-service/.env.example`
 
-- [ ] **Step 1: Write test for configuration loading**
+- [x] **Step 1: Write test for configuration loading**
 
 ```python
 # backend/ai-service/tests/test_config.py
@@ -84,12 +84,12 @@ def test_settings_validates_required_fields():
         Settings(OPENAI_API_KEY="")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_config.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.config'"
 
-- [ ] **Step 3: Implement configuration module**
+- [x] **Step 3: Implement configuration module**
 
 ```python
 # backend/ai-service/app/config.py
@@ -126,7 +126,7 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-- [ ] **Step 4: Update requirements.txt**
+- [x] **Step 4: Update requirements.txt**
 
 ```txt
 # backend/ai-service/requirements.txt
@@ -149,7 +149,7 @@ opentelemetry-sdk==1.29.0
 opentelemetry-exporter-jaeger==1.29.0
 ```
 
-- [ ] **Step 5: Create .env.example**
+- [x] **Step 5: Create .env.example**
 
 ```bash
 # backend/ai-service/.env.example
@@ -171,12 +171,12 @@ AI_MAX_RETRIES=3
 AI_ENABLE_CACHE=true
 ```
 
-- [ ] **Step 6: Run test to verify it passes**
+- [x] **Step 6: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_config.py -v`
 Expected: PASS (2 tests)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add backend/ai-service/app/config.py backend/ai-service/requirements.txt backend/ai-service/.env.example backend/ai-service/tests/test_config.py
@@ -190,7 +190,7 @@ git commit -m "feat(ai): add configuration module with environment settings"
 - Create: `backend/ai-service/app/database.py`
 - Create: `backend/ai-service/tests/test_database.py`
 
-- [ ] **Step 1: Write test for MongoDB connection**
+- [x] **Step 1: Write test for MongoDB connection**
 
 ```python
 # backend/ai-service/tests/test_database.py
@@ -211,12 +211,12 @@ async def test_database_connection_can_ping():
     await close_database_connection()
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_database.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.database'"
 
-- [ ] **Step 3: Implement MongoDB connection module**
+- [x] **Step 3: Implement MongoDB connection module**
 
 ```python
 # backend/ai-service/app/database.py
@@ -246,12 +246,12 @@ async def close_database_connection():
         _database = None
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_database.py -v`
 Expected: PASS (2 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/database.py backend/ai-service/tests/test_database.py
@@ -264,7 +264,7 @@ git commit -m "feat(ai): add MongoDB connection with Motor async driver"
 - Create: `backend/ai-service/app/cache.py`
 - Create: `backend/ai-service/tests/test_cache.py`
 
-- [ ] **Step 1: Write test for Redis cache operations**
+- [x] **Step 1: Write test for Redis cache operations**
 
 ```python
 # backend/ai-service/tests/test_cache.py
@@ -294,12 +294,12 @@ async def test_cache_respects_ttl():
     await close_cache_connection()
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_cache.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.cache'"
 
-- [ ] **Step 3: Implement Redis cache module**
+- [x] **Step 3: Implement Redis cache module**
 
 ```python
 # backend/ai-service/app/cache.py
@@ -353,12 +353,12 @@ async def close_cache_connection():
         _redis_client = None
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_cache.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/cache.py backend/ai-service/tests/test_cache.py
@@ -373,7 +373,7 @@ git commit -m "feat(ai): add Redis cache with async operations"
 - Create: `backend/ai-service/app/models/schemas.py`
 - Create: `backend/ai-service/tests/test_models.py`
 
-- [ ] **Step 1: Write test for state model**
+- [x] **Step 1: Write test for state model**
 
 ```python
 # backend/ai-service/tests/test_models.py
@@ -428,12 +428,12 @@ def test_trade_params_validation():
     assert params.condition == "like_new"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_models.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.models'"
 
-- [ ] **Step 3: Implement state models**
+- [x] **Step 3: Implement state models**
 
 ```python
 # backend/ai-service/app/models/state.py
@@ -459,7 +459,7 @@ class ConversationState(TypedDict):
     metadata: Dict[str, Any]
 ```
 
-- [ ] **Step 4: Implement schema models**
+- [x] **Step 4: Implement schema models**
 
 ```python
 # backend/ai-service/app/models/schemas.py
@@ -495,12 +495,12 @@ class SmartSearchResponse(BaseModel):
     suggestions: List[str] = []
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_models.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/ai-service/app/models/ backend/ai-service/tests/test_models.py
@@ -516,7 +516,7 @@ git commit -m "feat(ai): add LangGraph state and Pydantic schema models"
 - Create: `backend/ai-service/app/agents/intent_classifier.py`
 - Create: `backend/ai-service/tests/test_intent_classifier.py`
 
-- [ ] **Step 1: Write test for intent classification**
+- [x] **Step 1: Write test for intent classification**
 
 ```python
 # backend/ai-service/tests/test_intent_classifier.py
@@ -584,12 +584,12 @@ async def test_low_confidence_intent():
     assert result["intent_confidence"] < 0.7
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_intent_classifier.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.agents'"
 
-- [ ] **Step 3: Implement intent classifier agent**
+- [x] **Step 3: Implement intent classifier agent**
 
 ```python
 # backend/ai-service/app/agents/intent_classifier.py
@@ -657,12 +657,12 @@ async def intent_classifier_agent(state: ConversationState) -> ConversationState
     return state
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_intent_classifier.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/agents/intent_classifier.py backend/ai-service/tests/test_intent_classifier.py
@@ -676,7 +676,7 @@ git commit -m "feat(ai): implement intent classifier agent with OpenAI function 
 - Create: `backend/ai-service/app/agents/parameter_extractor.py`
 - Create: `backend/ai-service/tests/test_parameter_extractor.py`
 
-- [ ] **Step 1: Write test for parameter extraction**
+- [x] **Step 1: Write test for parameter extraction**
 
 ```python
 # backend/ai-service/tests/test_parameter_extractor.py
@@ -750,12 +750,12 @@ async def test_extract_partial_parameters():
     assert "min_price" not in params or params["min_price"] is None
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_parameter_extractor.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.agents.parameter_extractor'"
 
-- [ ] **Step 3: Implement parameter extractor agent**
+- [x] **Step 3: Implement parameter extractor agent**
 
 ```python
 # backend/ai-service/app/agents/parameter_extractor.py
@@ -863,12 +863,12 @@ async def parameter_extractor_agent(state: ConversationState) -> ConversationSta
     return state
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_parameter_extractor.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/agents/parameter_extractor.py backend/ai-service/tests/test_parameter_extractor.py
@@ -883,7 +883,7 @@ git commit -m "feat(ai): implement parameter extractor agent with schema validat
 - Create: `backend/ai-service/app/agents/synonyms.json`
 - Create: `backend/ai-service/tests/test_query_optimizer.py`
 
-- [ ] **Step 1: Write test for query optimization**
+- [x] **Step 1: Write test for query optimization**
 
 ```python
 # backend/ai-service/tests/test_query_optimizer.py
@@ -957,12 +957,12 @@ async def test_optimize_category_synonyms():
     assert "沙发" in optimized["keywords"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_query_optimizer.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.agents.query_optimizer'"
 
-- [ ] **Step 3: Create synonyms dictionary**
+- [x] **Step 3: Create synonyms dictionary**
 
 ```json
 {
@@ -990,7 +990,7 @@ Expected: FAIL with "ModuleNotFoundError: No module named 'app.agents.query_opti
 }
 ```
 
-- [ ] **Step 4: Implement query optimizer agent**
+- [x] **Step 4: Implement query optimizer agent**
 
 ```python
 # backend/ai-service/app/agents/query_optimizer.py
@@ -1062,12 +1062,12 @@ async def query_optimizer_agent(state: ConversationState) -> ConversationState:
     return state
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_query_optimizer.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/ai-service/app/agents/query_optimizer.py backend/ai-service/app/agents/synonyms.json backend/ai-service/tests/test_query_optimizer.py
@@ -1081,7 +1081,7 @@ git commit -m "feat(ai): implement query optimizer with synonym expansion"
 - Create: `backend/ai-service/app/agents/data_retrieval.py`
 - Create: `backend/ai-service/tests/test_data_retrieval.py`
 
-- [ ] **Step 1: Write test for data retrieval**
+- [x] **Step 1: Write test for data retrieval**
 
 ```python
 # backend/ai-service/tests/test_data_retrieval.py
@@ -1174,12 +1174,12 @@ async def test_retrieve_with_cache():
         assert result["metadata"]["cache_hit"] == True
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_data_retrieval.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.agents.data_retrieval'"
 
-- [ ] **Step 3: Implement data retrieval agent**
+- [x] **Step 3: Implement data retrieval agent**
 
 ```python
 # backend/ai-service/app/agents/data_retrieval.py
@@ -1279,12 +1279,12 @@ async def data_retrieval_agent(state: ConversationState) -> ConversationState:
     return state
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_data_retrieval.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/agents/data_retrieval.py backend/ai-service/tests/test_data_retrieval.py
@@ -1299,7 +1299,7 @@ git commit -m "feat(ai): implement data retrieval agent with caching and retry"
 - Create: `backend/ai-service/app/agents/response_formatter.py`
 - Test: `backend/ai-service/tests/test_response_formatter.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `backend/ai-service/tests/test_response_formatter.py`:
 
@@ -1392,12 +1392,12 @@ async def test_response_formatter_with_error():
     assert result["formatted_response"]["error"] == "API timeout"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_response_formatter.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.agents.response_formatter'"
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Create `backend/ai-service/app/agents/response_formatter.py`:
 
@@ -1494,12 +1494,12 @@ def _generate_suggestions(params: Dict[str, Any], intent: str) -> List[str]:
     return suggestions
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_response_formatter.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/agents/response_formatter.py backend/ai-service/tests/test_response_formatter.py
@@ -1516,7 +1516,7 @@ git commit -m "feat(ai): implement response formatter agent"
 - Create: `backend/ai-service/app/workflow.py`
 - Test: `backend/ai-service/tests/test_workflow.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `backend/ai-service/tests/test_workflow.py`:
 
@@ -1575,12 +1575,12 @@ async def test_workflow_low_confidence():
     assert "更多信息" in result["formatted_response"].get("error", "")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_workflow.py -v`
 Expected: FAIL with "ModuleNotFoundError: No module named 'app.workflow'"
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Create `backend/ai-service/app/workflow.py`:
 
@@ -1659,12 +1659,12 @@ async def handle_low_confidence(state: ConversationState) -> ConversationState:
     return state
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_workflow.py -v`
 Expected: PASS (2 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/workflow.py backend/ai-service/tests/test_workflow.py
@@ -1679,7 +1679,7 @@ git commit -m "feat(ai): implement langgraph workflow with conditional routing"
 - Modify: `backend/ai-service/app/main.py`
 - Create: `backend/ai-service/app/models/schemas.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `backend/ai-service/tests/test_workflow.py`:
 
@@ -1707,12 +1707,12 @@ async def test_smart_search_endpoint():
     assert "data" in data
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend/ai-service && pytest tests/test_workflow.py::test_smart_search_endpoint -v`
 Expected: FAIL with 404 or endpoint not found
 
-- [ ] **Step 3: Create request/response schemas**
+- [x] **Step 3: Create request/response schemas**
 
 Create `backend/ai-service/app/models/schemas.py`:
 
@@ -1734,7 +1734,7 @@ class SmartSearchResponse(BaseModel):
     error: Optional[str] = None
 ```
 
-- [ ] **Step 4: Update FastAPI main.py**
+- [x] **Step 4: Update FastAPI main.py**
 
 Modify `backend/ai-service/app/main.py`:
 
@@ -1805,12 +1805,12 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8003)
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `cd backend/ai-service && pytest tests/test_workflow.py::test_smart_search_endpoint -v`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/ai-service/app/main.py backend/ai-service/app/models/schemas.py
@@ -1828,7 +1828,7 @@ git commit -m "feat(ai): add smart search endpoint with workflow integration"
 - Create: `backend/rental-service/app/models.py`
 - Modify: `backend/rental-service/app/main.py`
 
-- [ ] **Step 1: Create database connection**
+- [x] **Step 1: Create database connection**
 
 Create `backend/rental-service/app/database.py`:
 
@@ -1857,7 +1857,7 @@ async def close_database():
         _client.close()
 ```
 
-- [ ] **Step 2: Create data models**
+- [x] **Step 2: Create data models**
 
 Create `backend/rental-service/app/models.py`:
 
@@ -1890,7 +1890,7 @@ class Rental(BaseModel):
     favorite_count: int = 0
 ```
 
-- [ ] **Step 3: Update main.py to use MongoDB**
+- [x] **Step 3: Update main.py to use MongoDB**
 
 Modify `backend/rental-service/app/main.py` - replace the `/api/rental/list` endpoint:
 
@@ -1944,7 +1944,7 @@ async def get_rentals(
     }
 ```
 
-- [ ] **Step 4: Add startup/shutdown events**
+- [x] **Step 4: Add startup/shutdown events**
 
 Add to `backend/rental-service/app/main.py`:
 
@@ -1956,13 +1956,13 @@ async def shutdown_event():
     await close_database()
 ```
 
-- [ ] **Step 5: Test manually**
+- [x] **Step 5: Test manually**
 
 Run: `cd backend/rental-service && python app/main.py`
 Then: `curl http://localhost:8001/api/rental/list`
 Expected: Returns empty list or migrated data
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/rental-service/app/database.py backend/rental-service/app/models.py backend/rental-service/app/main.py
@@ -1978,7 +1978,7 @@ git commit -m "feat(rental): migrate to mongodb storage"
 - Create: `backend/trade-service/app/models.py`
 - Modify: `backend/trade-service/app/main.py`
 
-- [ ] **Step 1: Create database connection**
+- [x] **Step 1: Create database connection**
 
 Create `backend/trade-service/app/database.py`:
 
@@ -2007,7 +2007,7 @@ async def close_database():
         _client.close()
 ```
 
-- [ ] **Step 2: Create data models**
+- [x] **Step 2: Create data models**
 
 Create `backend/trade-service/app/models.py`:
 
@@ -2031,7 +2031,7 @@ class TradeItem(BaseModel):
     tags: Optional[List[str]] = []
 ```
 
-- [ ] **Step 3: Update main.py to use MongoDB**
+- [x] **Step 3: Update main.py to use MongoDB**
 
 Modify `backend/trade-service/app/main.py` - replace the `/api/trade/list` endpoint:
 
@@ -2085,7 +2085,7 @@ async def get_items(
     }
 ```
 
-- [ ] **Step 4: Add shutdown event**
+- [x] **Step 4: Add shutdown event**
 
 Add to `backend/trade-service/app/main.py`:
 
@@ -2097,13 +2097,13 @@ async def shutdown_event():
     await close_database()
 ```
 
-- [ ] **Step 5: Test manually**
+- [x] **Step 5: Test manually**
 
 Run: `cd backend/trade-service && python app/main.py`
 Then: `curl http://localhost:8002/api/trade/list`
 Expected: Returns empty list or migrated data
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/trade-service/app/database.py backend/trade-service/app/models.py backend/trade-service/app/main.py
@@ -2117,7 +2117,7 @@ git commit -m "feat(trade): migrate to mongodb storage"
 **Files:**
 - Create: `scripts/migrate_to_mongodb.py`
 
-- [ ] **Step 1: Create migration script**
+- [x] **Step 1: Create migration script**
 
 Create `scripts/migrate_to_mongodb.py`:
 
@@ -2249,17 +2249,17 @@ if __name__ == "__main__":
     asyncio.run(migrate())
 ```
 
-- [ ] **Step 2: Run migration**
+- [x] **Step 2: Run migration**
 
 Run: `python scripts/migrate_to_mongodb.py`
 Expected: Output showing indexes created and data inserted
 
-- [ ] **Step 3: Verify data**
+- [x] **Step 3: Verify data**
 
 Run: `mongo neighborhood_db --eval "db.rentals.count()"`
 Expected: Shows count of rental records
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add scripts/migrate_to_mongodb.py
@@ -2276,7 +2276,7 @@ git commit -m "feat: add mongodb migration script with sample data"
 - Create: `frontend/src/components/SmartSearchBar.vue`
 - Create: `frontend/src/api/ai.js`
 
-- [ ] **Step 1: Create AI API client**
+- [x] **Step 1: Create AI API client**
 
 Create `frontend/src/api/ai.js`:
 
@@ -2296,7 +2296,7 @@ export const smartSearchApi = {
 }
 ```
 
-- [ ] **Step 2: Create SmartSearchBar component**
+- [x] **Step 2: Create SmartSearchBar component**
 
 Create `frontend/src/components/SmartSearchBar.vue`:
 
@@ -2472,7 +2472,7 @@ const formatFilter = (key, value) => {
 </style>
 ```
 
-- [ ] **Step 3: Test component manually**
+- [x] **Step 3: Test component manually**
 
 Add to rental list page (`frontend/src/views/rental/RentalList.vue`):
 
@@ -2494,13 +2494,13 @@ const handleSearchResults = (results) => {
 </script>
 ```
 
-- [ ] **Step 4: Run frontend dev server**
+- [x] **Step 4: Run frontend dev server**
 
 Run: `cd frontend && npm run dev`
 Then: Open browser and test search with "望京3000左右的两室"
 Expected: Search bar shows query understanding and results
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/components/SmartSearchBar.vue frontend/src/api/ai.js
@@ -2517,7 +2517,7 @@ git commit -m "feat(frontend): add smart search bar component"
 - Create: `backend/ai-service/app/metrics.py`
 - Modify: `backend/ai-service/app/main.py`
 
-- [ ] **Step 1: Create metrics definitions**
+- [x] **Step 1: Create metrics definitions**
 
 Create `backend/ai-service/app/metrics.py`:
 
@@ -2568,7 +2568,7 @@ ai_active_requests = Gauge(
 )
 ```
 
-- [ ] **Step 2: Add metrics endpoint**
+- [x] **Step 2: Add metrics endpoint**
 
 Modify `backend/ai-service/app/main.py`:
 
@@ -2580,7 +2580,7 @@ metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
 ```
 
-- [ ] **Step 3: Add metrics to workflow**
+- [x] **Step 3: Add metrics to workflow**
 
 Update `backend/ai-service/app/main.py` smart_search endpoint:
 
@@ -2615,13 +2615,13 @@ async def smart_search(request: SmartSearchRequest):
         ai_active_requests.dec()
 ```
 
-- [ ] **Step 4: Test metrics endpoint**
+- [x] **Step 4: Test metrics endpoint**
 
 Run: `cd backend/ai-service && python app/main.py`
 Then: `curl http://localhost:8003/metrics`
 Expected: Prometheus metrics output
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/metrics.py backend/ai-service/app/main.py
@@ -2636,7 +2636,7 @@ git commit -m "feat(ai): add prometheus metrics for monitoring"
 - Create: `backend/ai-service/app/utils/logger.py`
 - Modify: `backend/ai-service/app/agents/*.py` (add logging)
 
-- [ ] **Step 1: Create logger setup**
+- [x] **Step 1: Create logger setup**
 
 Create `backend/ai-service/app/utils/logger.py`:
 
@@ -2675,7 +2675,7 @@ def get_logger(name: str):
     return structlog.get_logger(name)
 ```
 
-- [ ] **Step 2: Add logging to intent classifier**
+- [x] **Step 2: Add logging to intent classifier**
 
 Update `backend/ai-service/app/agents/intent_classifier.py`:
 
@@ -2711,7 +2711,7 @@ async def intent_classifier_agent(state: ConversationState) -> ConversationState
         raise
 ```
 
-- [ ] **Step 3: Initialize logging in main.py**
+- [x] **Step 3: Initialize logging in main.py**
 
 Update `backend/ai-service/app/main.py`:
 
@@ -2733,13 +2733,13 @@ async def shutdown_event():
     logger.info("ai_service_shutdown")
 ```
 
-- [ ] **Step 4: Test structured logs**
+- [x] **Step 4: Test structured logs**
 
 Run: `cd backend/ai-service && python app/main.py`
 Then: Make a search request
 Expected: JSON-formatted logs in console
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/ai-service/app/utils/logger.py backend/ai-service/app/agents/intent_classifier.py backend/ai-service/app/main.py
@@ -2755,7 +2755,7 @@ git commit -m "feat(ai): add structured logging with structlog"
 **Files:**
 - Create: `backend/ai-service/tests/test_integration.py`
 
-- [ ] **Step 1: Write integration test**
+- [x] **Step 1: Write integration test**
 
 Create `backend/ai-service/tests/test_integration.py`:
 
@@ -2835,12 +2835,12 @@ async def test_metrics_endpoint():
     assert "ai_requests_total" in response.text
 ```
 
-- [ ] **Step 2: Run integration tests**
+- [x] **Step 2: Run integration tests**
 
 Run: `cd backend/ai-service && pytest tests/test_integration.py -v`
 Expected: PASS (4 tests)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/ai-service/tests/test_integration.py
@@ -2855,7 +2855,7 @@ git commit -m "test(ai): add end-to-end integration tests"
 - Modify: `backend/ai-service/requirements.txt`
 - Modify: `README.md`
 
-- [ ] **Step 1: Update requirements.txt**
+- [x] **Step 1: Update requirements.txt**
 
 Update `backend/ai-service/requirements.txt`:
 
@@ -2879,7 +2879,7 @@ pytest==7.4.4
 pytest-asyncio==0.23.3
 ```
 
-- [ ] **Step 2: Update README.md**
+- [x] **Step 2: Update README.md**
 
 Update the AI Service section in `README.md`:
 
@@ -2932,7 +2932,7 @@ curl -X POST http://localhost:8003/api/ai/smart-search \
 - **分布式追踪**: OpenTelemetry集成
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/ai-service/requirements.txt README.md

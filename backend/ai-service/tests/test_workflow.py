@@ -1,11 +1,23 @@
 import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
 from app.workflow import create_workflow
 from app.models.state import ConversationState
+
 
 @pytest.mark.asyncio
 async def test_workflow_rental_query():
     """Test complete workflow with rental query"""
-    workflow = create_workflow()
+
+    async def mock_data_retrieval(state: ConversationState) -> ConversationState:
+        state["retrieved_data"] = [
+            {"id": "rental_1", "title": "精装两室", "price": 3000},
+            {"id": "rental_2", "title": "温馨两居", "price": 2800}
+        ]
+        state["metadata"]["cache_hit"] = False
+        return state
+
+    with patch("app.workflow.data_retrieval_agent", mock_data_retrieval):
+        workflow = create_workflow()
 
     initial_state: ConversationState = {
         "user_query": "望京3000左右的两室一厅",
@@ -58,8 +70,15 @@ async def test_smart_search_endpoint():
     from app.main import app
     import app.main as main_module
 
-    # Initialize workflow for testing
-    main_module.workflow = create_workflow()
+    async def mock_data_retrieval(state: ConversationState) -> ConversationState:
+        state["retrieved_data"] = [
+            {"id": "rental_1", "title": "精装两室", "price": 3000}
+        ]
+        state["metadata"]["cache_hit"] = False
+        return state
+
+    with patch("app.workflow.data_retrieval_agent", mock_data_retrieval):
+        main_module.workflow = create_workflow()
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.post(

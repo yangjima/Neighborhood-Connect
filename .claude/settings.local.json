@@ -2,7 +2,36 @@
   "permissions": {
     "allow": [
       "Bash(\"/c/temp/python-3.11.9-amd64.exe\" /passive InstallAllUsers=1 PrependPath=1 Include_test=0)",
-      "Bash(curl -s http://localhost:8002/api/trade/list)"
+      "Bash(curl -s http://localhost:8002/api/trade/list)",
+      "Bash(python -m pytest tests/test_config.py -v)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(pytest tests/test_database.py -v)",
+      "Bash(pip install *)",
+      "Bash(pytest tests/test_parameter_extractor.py -v)",
+      "Bash(pytest tests/test_query_optimizer.py -v)",
+      "Bash(pytest tests/test_response_formatter.py -v)",
+      "Bash(pytest tests/test_data_retrieval.py -v)",
+      "Bash(pytest tests/test_workflow.py::test_smart_search_endpoint -v)",
+      "Bash(pytest tests/test_workflow.py -v)",
+      "Bash(pytest tests/test_workflow.py::test_smart_search_endpoint -v -s)",
+      "Bash(pytest tests/test_integration.py -v)",
+      "Bash(python -c \"from app.metrics import ai_requests_total; print\\('Metrics module loaded successfully'\\)\")",
+      "Bash(python -c \"from app.metrics import ai_requests_total, ai_request_duration, ai_llm_tokens, ai_cache_hits, ai_cache_misses, ai_agent_success, ai_agent_failure, ai_active_requests; print\\('All metrics loaded successfully'\\); print\\('ai_requests_total:', ai_requests_total\\); print\\('ai_active_requests:', ai_active_requests\\)\")",
+      "Bash(pip --version)",
+      "Bash(python -m pytest tests/test_integration.py -v)",
+      "Bash(python -c \"from prometheus_client import Counter, Histogram, Gauge, make_asgi_app; print\\('All prometheus_client components imported successfully'\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(curl -s http://127.0.0.1:8003/metrics/)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 21184)",
+      "Bash(taskkill //F //PID 26716)",
+      "Bash(python -m pytest tests/test_integration.py::test_end_to_end_trade_search -v --tb=short)",
+      "Bash(python -m pytest tests/test_integration.py -v --tb=short)",
+      "Bash(python -m pytest tests/test_integration.py -v --tb=long)",
+      "Bash(python -m pytest tests/test_integration.py -v --count=3)",
+      "Bash(python -m pytest tests/ -v --tb=short)"
     ]
   }
 }

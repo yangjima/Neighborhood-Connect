@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Administrator/.claude/projects/d--code-Neighborhood-Connect/**)",
+      "Bash(python -m pytest tests/test_workflow.py -v)"
+    ]
+  }
+}
