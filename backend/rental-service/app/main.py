@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 import uvicorn
+from app.database import get_database, close_database
 
 app = FastAPI(title="Rental Service", version="1.0.0")
 
@@ -145,8 +146,12 @@ class AppointmentRequest(BaseModel):
 def read_root():
     return {"service": "Rental Service", "status": "running", "mode": "demo"}
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_database()
+
 @app.get("/api/rental/list")
-def get_rentals(
+async def get_rentals(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
     type: Optional[str] = None,
@@ -154,22 +159,35 @@ def get_rentals(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None
 ):
-    """获取房源列表"""
-    filtered = rentals_db.copy()
+    """Get rental listings from MongoDB"""
+    db = await get_database()
+    collection = db.rentals
+
+    # Build query filter
+    query_filter = {"status": "available"}
 
     if type:
-        filtered = [r for r in filtered if r["type"] == type]
+        query_filter["type"] = type
     if location:
-        filtered = [r for r in filtered if location.lower() in r["location"]["community"].lower()]
+        query_filter["location.community"] = {"$regex": location, "$options": "i"}
     if min_price is not None:
-        filtered = [r for r in filtered if r["price"] >= min_price]
+        query_filter["price"] = query_filter.get("price", {})
+        query_filter["price"]["$gte"] = min_price
     if max_price is not None and max_price < 999999:
-        filtered = [r for r in filtered if r["price"] <= max_price]
+        query_filter["price"] = query_filter.get("price", {})
+        query_filter["price"]["$lte"] = max_price
 
-    total = len(filtered)
-    start = (page - 1) * page_size
-    end = start + page_size
-    items = filtered[start:end]
+    # Get total count
+    total = await collection.count_documents(query_filter)
+
+    # Get paginated results
+    skip = (page - 1) * page_size
+    cursor = collection.find(query_filter).skip(skip).limit(page_size).sort("created_at", -1)
+    items = await cursor.to_list(length=page_size)
+
+    # Convert ObjectId to string
+    for item in items:
+        item["_id"] = str(item["_id"])
 
     return {
         "data": items,
