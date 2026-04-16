@@ -38,12 +38,21 @@
 | 模块 | 描述 | 状态 |
 |------|------|------|
 | 用户认证 | 登录、注册、JWT认证 | ✅ |
-| 租房信息 | 发布、浏览、搜索、收藏、预约看房 | ✅ |
-| 二手交易 | 发布、浏览、搜索、下单、订单管理 | ✅ |
+| 租房信息 | 发布、浏览、搜索、收藏、预约看房（内存存储） | ✅ |
+| 二手交易 | 发布、浏览、搜索、下单、订单管理（内存存储） | ✅ |
 | 用户中心 | 个人资料、我的发布、我的订单 | ✅ |
-| AI服务 | 内容生成、内容审核、智能推荐 | ✅ |
+| AI服务 | 内容生成、内容审核、智能推荐（基础版） | ✅ |
 | 支付服务 | 微信/支付宝支付集成 | ✅ |
 | 图片上传 | 单图/多图上传、删除 | ✅ |
+
+### 进行中 🚧
+
+| 模块 | 描述 | 状态 |
+|------|------|------|
+| MongoDB集成 | 租房和交易服务迁移到MongoDB | 🚧 |
+| AI智能搜索 | 多Agent架构 + LangGraph编排 | 🚧 |
+| 前端智能搜索框 | 自然语言查询界面 | 🚧 |
+| 监控系统 | Prometheus + 结构化日志 | 🚧 |
 
 ### 支付集成说明
 
@@ -266,7 +275,61 @@ npm run dev
 | 我的发布 | `/user/my-items` | 管理已发布商品 |
 | 我的订单 | `/user/orders` | 订单列表、状态管理 |
 
-## AI 功能（LangGraph）
+## AI 功能（LangGraph + 多Agent架构）
+
+### 智能搜索（核心功能）
+
+用户通过自然语言查询，AI自动识别意图并提取参数：
+
+```bash
+curl -X POST http://localhost:8003/api/ai/smart-search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "望京3000左右的两室一厅",
+    "context": "rental"
+  }'
+```
+
+响应示例：
+```json
+{
+  "success": true,
+  "data": [...],
+  "total": 15,
+  "query_understanding": "为您找到望京地区2700-3300元的两室一厅",
+  "applied_filters": {
+    "location": "望京",
+    "min_price": 2700,
+    "max_price": 3300,
+    "type": "whole"
+  }
+}
+```
+
+### 多Agent架构设计
+
+系统由5个专门的Agent组成：
+
+1. **IntentClassifierAgent** - 识别用户查询属于租房还是交易
+2. **ParameterExtractorAgent** - 从自然语言中提取结构化参数
+3. **QueryOptimizerAgent** - 优化查询条件，处理同义词和模糊匹配
+4. **DataRetrievalAgent** - 调用租房/交易服务API获取数据
+5. **ResponseFormatterAgent** - 将结果格式化为前端需要的JSON
+
+工作流程：
+```
+用户输入 → IntentClassifier → ParameterExtractor → QueryOptimizer → DataRetrieval → ResponseFormatter → 返回前端
+```
+
+### 技术亮点
+
+- **LangGraph状态机编排** - 使用条件边实现动态路由
+- **OpenAI Function Calling** - 结构化参数提取
+- **MongoDB地理位置查询** - 2dsphere索引支持位置搜索
+- **Redis缓存** - 相同查询5分钟内直接返回缓存
+- **Prometheus监控** - 完整的可观测性指标
+- **降级策略** - LLM失败时回退到关键词匹配
+- **分布式追踪** - OpenTelemetry + Jaeger
 
 ### 内容生成
 
