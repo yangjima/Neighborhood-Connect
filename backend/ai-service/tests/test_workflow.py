@@ -54,10 +54,14 @@ async def test_workflow_low_confidence():
 @pytest.mark.asyncio
 async def test_smart_search_endpoint():
     """Test /api/ai/smart-search endpoint"""
-    from httpx import AsyncClient
+    from httpx import AsyncClient, ASGITransport
     from app.main import app
+    import app.main as main_module
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    # Initialize workflow for testing
+    main_module.workflow = create_workflow()
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.post(
             "/api/ai/smart-search",
             json={
@@ -68,6 +72,7 @@ async def test_smart_search_endpoint():
 
     assert response.status_code == 200
     data = response.json()
+    print(f"Response data: {data}")
     assert data["success"] is True
     assert "query_understanding" in data
     assert "data" in data

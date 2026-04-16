@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 import uvicorn
+from app.database import get_database, close_database
 
 app = FastAPI(title="Trade Service", version="1.0.0")
 
@@ -143,8 +144,12 @@ class OrderCreate(BaseModel):
 def read_root():
     return {"service": "Trade Service", "status": "running", "mode": "demo"}
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_database()
+
 @app.get("/api/trade/list")
-def get_items(
+async def get_items(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
     category: Optional[str] = None,
@@ -152,22 +157,35 @@ def get_items(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None
 ):
-    """获取商品列表"""
-    filtered = items_db.copy()
+    """Get trade items from MongoDB"""
+    db = await get_database()
+    collection = db.trade_items
+
+    # Build query filter
+    query_filter = {"status": "available"}
 
     if category:
-        filtered = [i for i in filtered if i["category"] == category]
+        query_filter["category"] = category
     if condition:
-        filtered = [i for i in filtered if i["condition"] == condition]
+        query_filter["condition"] = condition
     if min_price is not None:
-        filtered = [i for i in filtered if i["price"] >= min_price]
+        query_filter["price"] = query_filter.get("price", {})
+        query_filter["price"]["$gte"] = min_price
     if max_price is not None and max_price < 999999:
-        filtered = [i for i in filtered if i["price"] <= max_price]
+        query_filter["price"] = query_filter.get("price", {})
+        query_filter["price"]["$lte"] = max_price
 
-    total = len(filtered)
-    start = (page - 1) * page_size
-    end = start + page_size
-    items = filtered[start:end]
+    # Get total count
+    total = await collection.count_documents(query_filter)
+
+    # Get paginated results
+    skip = (page - 1) * page_size
+    cursor = collection.find(query_filter).skip(skip).limit(page_size).sort("created_at", -1)
+    items = await cursor.to_list(length=page_size)
+
+    # Convert ObjectId to string
+    for item in items:
+        item["_id"] = str(item["_id"])
 
     return {
         "data": items,
