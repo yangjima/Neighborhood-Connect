@@ -5,14 +5,25 @@ from typing import List, Optional
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+from prometheus_client import make_asgi_app
 import os
 import uvicorn
+import time
 
 from app.models.schemas import SmartSearchRequest, SmartSearchResponse
 from app.models.state import ConversationState
 from app.workflow import create_workflow
+from app.metrics import (
+    ai_requests_total,
+    ai_request_duration,
+    ai_active_requests
+)
 
 app = FastAPI(title="AI Service", version="2.0.0")
+
+# Mount prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 # CORS配置
 app.add_middleware(
